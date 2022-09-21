@@ -1,8 +1,8 @@
 window.addEventListener('load', function () {
   const canvas = document.getElementById('canvas1');
   const ctx = canvas.getContext('2d');
-  canvas.width = 500;
-  canvas.heigth = 700;
+  canvas.width = 700;
+  canvas.heigth = 600;
 
   // input Handeler class will keep track of user input
   //
@@ -136,7 +136,7 @@ window.addEventListener('load', function () {
       super(game);
       this.width = 228 * 0.2;
       this.heigth = 170 * 0.2;
-      this.y = Math.random() * (this.game.heigth * 0.5 - this.heigth);
+      this.y = Math.random() * (this.game.heigth * 0.9) - this.heigth;
     }
   }
   // will handel diffrent background layers
@@ -183,12 +183,13 @@ window.addEventListener('load', function () {
           msg = 'YOU LOST :(';
           msg1 = 'Try again';
         }
+        context.restore();
+
         context.font = '50px' + this.fontFamily;
         context.fillText(msg, this.game.width * 0.5, this.game.heigth * 0.1);
         context.font = '35px' + this.fontFamily;
         context.fillText(msg1, this.game.width * 0.5, this.game.heigth * 0.123);
       }
-      context.restore();
     }
   }
 
