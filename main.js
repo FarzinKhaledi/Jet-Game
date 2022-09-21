@@ -1,8 +1,10 @@
 window.addEventListener('load', function () {
   const canvas = document.getElementById('canvas1');
   const ctx = canvas.getContext('2d');
-  canvas.width = 700;
-  canvas.heigth = 600;
+  // canvas.width = 1000;
+  // canvas.heigth = 700;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
   // input Handeler class will keep track of user input
   //
@@ -34,9 +36,10 @@ window.addEventListener('load', function () {
       this.game = game;
       this.x = x;
       this.y = y;
-      this.width = 7;
+      this.width = 8;
       this.heigth = 3;
       this.speed = 4;
+      this.image = document.getElementById('rocket');
       this.markedForDeletion = false;
     }
     update() {
@@ -44,27 +47,23 @@ window.addEventListener('load', function () {
       if (this.x > this.game.width * 0.9) this.markedForDeletion = true;
     }
     draw(context) {
-      context.fillStyle = 'yellow';
-      context.fillRect(this.x, this.y, this.width, this.heigth);
+      context.drawImage(this.image, this.x, this.y);
     }
   }
-
-  //keep track of falling screws
-  //
-  class Particale {}
 
   //player class will controol the main character
   //
   class Player {
     constructor(game) {
       this.game = game;
-      this.width = 20;
-      this.heigth = 50;
+      this.width = 250;
+      this.heigth = 150;
       this.x = 20;
       this.y = 100;
       this.speedY = -1;
       this.maxSpeed = 5;
       this.projectiles = [];
+      this.sound = this.image = document.getElementById('player');
     }
     // controls the spped of the player
     update() {
@@ -89,7 +88,8 @@ window.addEventListener('load', function () {
     */
     draw(context) {
       context.fillStyle = 'green';
-      context.fillRect(this.x, this.y, this.width, this.heigth);
+      context.drawImage(this.image, this.x, this.y, this.width, this.heigth);
+      context.strokeRect(this.x, this.y, this.width, this.heigth);
       this.projectiles.forEach((projectile) => {
         projectile.draw(context);
       });
@@ -97,13 +97,15 @@ window.addEventListener('load', function () {
     shootTop() {
       if (this.game.ammo > 0) {
         this.projectiles.push(
-          new ProjectTitle(this.game, this.x + 10, this.y + 5)
+          new ProjectTitle(this.game, this.x + 100, this.y + 70)
         );
       }
       this.game.ammo--;
     }
   }
 
+  //class enemy its handelin diffrent enemy types
+  //
   //class enemy its handelin diffrent enemy types
   //
   class Enemy {
@@ -139,21 +141,61 @@ window.addEventListener('load', function () {
       this.y = Math.random() * (this.game.heigth * 0.9) - this.heigth;
     }
   }
-  // will handel diffrent background layers
+  //will handel diffrent background layers
   //
-  class Layer {}
+  class Layer {
+    constructor(game, image, bgSpeed) {
+      this.game = game;
+      this.image = image;
+      this.bgSpeed = bgSpeed;
+      this.width = 1500;
+      this.heigth = 200;
+      this.x = 0;
+      this.y = 0;
+    }
+    update() {
+      if (this.x <= -this.width) {
+        this.x = 0;
+      } else {
+        this.x -= this.game.bgSpeed * this.bgSpeed;
+      }
+    }
+    draw(context) {
+      context.drawImage(this.image, this.x, this.y);
+      context.drawImage(this.image, this.x + this.width, this.y);
+    }
+  }
 
   // backgrouud class will put all objects together
   //
-  class Background {}
-  // Ui classs will draw score timer and all the information to be display for the user
-  //
+  class Background {
+    constructor(game) {
+      this.game = game;
+      this.image = document.getElementById('bgImg');
+      this.layer = new Layer(this.game, this.image, 1);
+      this.image1 = document.getElementById('bgImg1');
+      this.layer1 = new Layer(this.game, this.image1, 1);
+      this.image2 = document.getElementById('bgImg2');
+      this.layer2 = new Layer(this.game, this.image2, 1);
+      // this.image3 = document.getElementById('bgImg3');
+      // this.layer3 = new Layer(this.game, this.image3, 1);
+      this.layers = [this.layer, this.layer1, this.layer2];
+    }
+    update() {
+      this.layers.forEach((layer) => layer.update());
+    }
+    draw(context) {
+      this.layers.forEach((layer) => layer.draw(context));
+    }
+  }
+  //Ui classs will draw score timer and all the information to be display for the user
+
   class UI {
     constructor(game) {
       this.game = game;
       this.fontSize = 25;
       this.fontFamily = 'Helvetica';
-      this.color = 'navy ';
+      this.color = 'navy';
     }
     draw(context) {
       //styleing
@@ -185,11 +227,17 @@ window.addEventListener('load', function () {
         }
         context.restore();
 
-        context.font = '50px' + this.fontFamily;
-        context.fillText(msg, this.game.width * 0.5, this.game.heigth * 0.1);
+        context.font = '150px' + this.fontFamily;
+        context.fillText(msg, this.game.width * 0.5, this.game.heigth * 0);
         context.font = '35px' + this.fontFamily;
-        context.fillText(msg1, this.game.width * 0.5, this.game.heigth * 0.123);
+        context.fillText(msg1, this.game.width * 0.5, this.game.heigth * 0);
       }
+      //display game time
+      context.fillText(
+        'Timer : ' + (this.game.gameTime * 0.001).toFixed(1),
+        150,
+        15
+      );
     }
   }
 
@@ -198,6 +246,7 @@ window.addEventListener('load', function () {
     constructor(width, heigth) {
       this.width = width;
       this.heigth = heigth;
+      this.background = new Background(this);
       this.player = new Player(this);
       this.input = new InputHandler(this);
       this.ui = new UI(this);
@@ -208,31 +257,44 @@ window.addEventListener('load', function () {
       this.ammoTimer = 0;
       this.ammoInterval = 500;
       this.enemyTimer = 0;
-      this.enemyInterval = 2000;
+      this.enemyInterval = 1000;
       this.gameOver = false;
       this.score = 0;
       this.winningScore = 10;
+      this.gameTime = 0;
+      this.timeLimit = 1000;
+      this.bgSpeed = 1;
     }
     update(deltaTime) {
+      if (!this.gameOver) {
+        console.log(this.enemies);
+        this.gameTime += deltaTime;
+      }
+      if (this.gameTime > this.timeLimit) {
+        this.gameOver = true;
+      }
+      this.background.update();
       this.player.update();
+      //ammo update
       if (this.ammoTimer > this.ammoInterval) {
         if (this.ammo < this.maxAmmo) this.ammo++;
         this.ammoTimer = 0;
       } else {
         this.ammoTimer += deltaTime;
       }
+      // enemy update
       this.enemies.forEach((enemy) => {
         enemy.update();
         if (this.collision(this.player, enemy)) {
           enemy.markedForDeletion = true;
         }
+        //projectiles update
         this.player.projectiles.forEach((projectile) => {
           if (this.collision(projectile, enemy)) {
             enemy.live--;
             projectile.markedForDeletion = true;
             if (enemy.live <= 0) {
-              // this.enemies.splice(i, 1);
-              // this.score += enemy.score;
+              ns;
               enemy.markedForDeletion = true;
               this.score += enemy.score;
               if (this.score > this.winningScore) this.gameOver = true;
@@ -242,7 +304,7 @@ window.addEventListener('load', function () {
       });
       this.enemies = this.enemies.filter((enemy) => !enemy.markedForDeletion);
 
-      if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
+      if (this.enemyTimer < this.enemyInterval && !this.gameOver) {
         this.addEnemy();
         this.enemyTimer = 0;
       } else {
@@ -250,9 +312,10 @@ window.addEventListener('load', function () {
       }
     }
     draw(context) {
+      this.enemies.forEach((enemy) => enemy.draw(context));
+      this.background.draw(context);
       this.player.draw(context);
       this.ui.draw(context);
-      this.enemies.forEach((enemy) => enemy.draw(context));
     }
     addEnemy() {
       this.enemies.push(new enemyChild(this));
