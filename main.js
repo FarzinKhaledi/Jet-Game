@@ -7,7 +7,6 @@ window.addEventListener('load', function () {
   canvas.height = window.innerHeight;
 
   // input Handeler class will keep track of user input
-  //
   class InputHandler {
     constructor(game) {
       this.game = game;
