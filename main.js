@@ -276,6 +276,9 @@ window.addEventListener('load', function () {
       this.gameTime = 500000;
       this.timeLimit = 100000;
       this.bgSpeed = 1;
+      this.audio = new Audio('./img/f16-fighter-jet-start-upaif-14690.mp3');
+      this.audio.play();
+
       console.log(this.keys);
     }
 
@@ -354,6 +357,7 @@ window.addEventListener('load', function () {
     ctx.clearRect(0, 0, canvas.width, canvas.heigth);
     game.update(deltaTime);
     game.draw(ctx);
+
     requestAnimationFrame(animate);
   }
   animate(0);
