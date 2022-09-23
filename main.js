@@ -2,7 +2,7 @@ window.addEventListener('load', function () {
   const canvas = document.getElementById('canvas1');
   const ctx = canvas.getContext('2d');
   canvas.width = 1500;
-  // canvas.heigth = 700;
+  // canvas.heigth = 1700;
   //canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
@@ -69,6 +69,7 @@ window.addEventListener('load', function () {
       this.maxSpeed = 3;
       this.projectiles = [];
       this.sound = this.image = document.getElementById('player');
+      this.audio = new Audio('./img/shooting.mp3');
     }
     // controls the spped of the player
     update() {
@@ -86,6 +87,7 @@ window.addEventListener('load', function () {
       this.x += this.speedX;
       this.projectiles.forEach((projectile) => {
         projectile.update();
+        this.audio.play();
       });
 
       //handel projectTitle
@@ -276,10 +278,8 @@ window.addEventListener('load', function () {
       this.gameTime = 500000;
       this.timeLimit = 100000;
       this.bgSpeed = 1;
-      this.audio = new Audio('./img/f16-fighter-jet-start-upaif-14690.mp3');
+      this.audio = new Audio('./img/fighter-jet.mp3');
       this.audio.play();
-
-      console.log(this.keys);
     }
 
     update(deltaTime) {
